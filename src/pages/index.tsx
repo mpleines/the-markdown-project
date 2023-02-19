@@ -27,8 +27,8 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main>
-        <h1 className={inter.className}>{hello.data.greeting}</h1>
+      <main className={inter.className}>
+        <h1>{hello.data.greeting}</h1>
         <div dangerouslySetInnerHTML={toDangerousMarkdown()}></div>
       </main>
     </>
