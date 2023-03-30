@@ -1,17 +1,26 @@
 import { marked } from "marked";
-import { useEffect, useRef, useState } from "react";
+import {
+  KeyboardEventHandler,
+  RefObject,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
 
 export type BlockType = {
+  id: string;
   html: string;
   tag: string;
 };
 
 interface BlockProps {
   block: BlockType;
+  addBlock: (ref: HTMLElement) => void;
+  removeBlock: (ref: HTMLElement, blockId: string) => void;
 }
 
-const setCaretToEnd = (element: HTMLElement) => {
+export const setCaretToEnd = (element: HTMLElement) => {
   const range = document.createRange();
   const selection = window.getSelection();
   if (selection == null) {
@@ -25,7 +34,11 @@ const setCaretToEnd = (element: HTMLElement) => {
   element.focus();
 };
 
-const Block: React.FunctionComponent<BlockProps> = ({ block }) => {
+const Block: React.FunctionComponent<BlockProps> = ({
+  block,
+  addBlock,
+  removeBlock,
+}) => {
   const text = useRef("");
   const [tagName, setTagName] = useState("");
   const ref = useRef<HTMLElement>();
@@ -46,6 +59,22 @@ const Block: React.FunctionComponent<BlockProps> = ({ block }) => {
     text.current = event.target.value;
   };
 
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (ref.current == null) {
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addBlock(ref.current);
+    }
+
+    if (event.key === "Backspace" && !text.current) {
+      event.preventDefault();
+      removeBlock(ref.current, block.id);
+    }
+  };
+
   useEffect(() => {
     if (ref.current) {
       ref.current.focus();
@@ -54,16 +83,15 @@ const Block: React.FunctionComponent<BlockProps> = ({ block }) => {
   }, [tagName]);
 
   return (
-    <div>
-      <ContentEditable
-        style={{ border: "1px solid" }}
-        innerRef={ref as any}
-        key={tagName}
-        html={text.current}
-        tagName={tagName}
-        onChange={handleInputChange}
-      />
-    </div>
+    <ContentEditable
+      style={{ border: "1px solid" }}
+      innerRef={ref as any}
+      key={tagName}
+      html={text.current}
+      tagName={tagName}
+      onChange={handleInputChange}
+      onKeyDown={(event) => handleKeyDown(event as any)}
+    />
   );
 };
 
