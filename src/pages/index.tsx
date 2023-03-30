@@ -2,6 +2,7 @@ import Head from "next/head";
 import { Inter } from "@next/font/google";
 import { trpc } from "@/utils/trpc";
 import { marked } from "marked";
+import Editor from "@/components/Editor";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,10 +12,6 @@ export default function Home() {
   if (!hello.data) {
     return <div>Loading...</div>;
   }
-
-  const toDangerousMarkdown = () => ({
-    __html: marked.parse("# hello from marked.js!"),
-  });
 
   return (
     <>
@@ -28,8 +25,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={inter.className}>
-        <h1>{hello.data.greeting}</h1>
-        <div dangerouslySetInnerHTML={toDangerousMarkdown()}></div>
+        <Editor />
       </main>
     </>
   );
