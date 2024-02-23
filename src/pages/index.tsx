@@ -1,17 +1,10 @@
 import Head from "next/head";
-import { Inter } from "@next/font/google";
 import { trpc } from "@/utils/trpc";
-import { marked } from "marked";
 import Editor from "@/components/Editor";
-
-const inter = Inter({ subsets: ["latin"] });
+import { GeistSans } from "geist/font/sans";
 
 export default function Home() {
-  const hello = trpc.hello.useQuery({ text: "pretty neat" });
-
-  if (!hello.data) {
-    return <div>Loading...</div>;
-  }
+  // const hello = trpc.hello.useQuery({ text: "pretty neat" });
 
   return (
     <>
@@ -24,7 +17,7 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={inter.className}>
+      <main className={GeistSans.className}>
         <Editor />
       </main>
     </>
