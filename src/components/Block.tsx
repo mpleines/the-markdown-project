@@ -1,7 +1,5 @@
 import { marked } from "marked";
 import {
-  KeyboardEventHandler,
-  RefObject,
   useEffect,
   useRef,
   useState,
@@ -52,11 +50,17 @@ const Block: React.FunctionComponent<BlockProps> = ({
     return tag;
   };
 
+  const replaceSpecialChars = (str: string) => {
+    return str.replace(/&nbsp;/g, ' ');
+  }
+
   const handleInputChange = (event: ContentEditableEvent) => {
-    const markdown = event.target.value;
-    const tag = getTagName(markdown);
+    const targetValue = event.target.value;
+    const trimmedString = replaceSpecialChars(targetValue)
+      .trim();
+    const tag = getTagName(trimmedString);
     setTagName(tag ?? "p");
-    text.current = event.target.value;
+    text.current = targetValue;
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -84,7 +88,7 @@ const Block: React.FunctionComponent<BlockProps> = ({
 
   return (
     <ContentEditable
-      style={{ border: "1px solid" }}
+      style={{ padding: '2px' }}
       innerRef={ref as any}
       key={tagName}
       html={text.current}
