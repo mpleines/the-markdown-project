@@ -1,3 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h1 {
+  @apply text-3xl;
+  @apply font-bold;
+}
+h2 {
+  @apply text-2xl;
+  @apply font-semibold;
+}
+h3 {
+  @apply text-xl;
+}
+a {
+  @apply text-blue-600 underline;
+}
+
 :root {
   --max-width: 1100px;
 }
