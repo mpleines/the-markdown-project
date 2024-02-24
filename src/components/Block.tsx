@@ -96,7 +96,6 @@ const Block: React.FunctionComponent<BlockProps> = ({
       onChange={handleInputChange}
       onKeyDown={(event) => handleKeyDown(event as any)}
     />
-  );
-};
+)};
 
 export default Block;
