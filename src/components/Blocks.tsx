@@ -1,6 +1,7 @@
-import { FunctionComponent, RefObject, useState } from "react";
-import { Set } from "typescript";
+import { FunctionComponent } from "react";
 import Block, { BlockType, setCaretToEnd } from "./Block";
+
+import { create } from 'zustand'
 
 interface BlocksProps {}
 
@@ -10,18 +11,38 @@ const DEFAULT_BLOCK: BlockType = {
   tag: "p",
 };
 
-const Blocks: FunctionComponent<BlocksProps> = () => {
-  const [blocks, setBlocks] = useState<BlockType[]>([DEFAULT_BLOCK]);
+interface EditorState {
+  blocks: BlockType[];
+  addBlock: (block: BlockType, currentBlockId: string) => void;
+  removeBlock: (blockId: string) => void;
+}
 
-  const addBlock = (ref: HTMLElement) => {
+export const useEditorStore = create<EditorState>((set, get) => ({
+  blocks: [DEFAULT_BLOCK],
+  addBlock: (block: BlockType, currentBlockId: string) => set((state) => {
+    const currentBlockIndex = state.blocks.findIndex(block => block.id === currentBlockId);
+    const modified = state.blocks
+      .slice(0, currentBlockIndex + 1)
+      .concat(block, state.blocks.slice(currentBlockIndex + 1));
+
+    return { blocks: modified }
+  }),
+  removeBlock: (blockId: string) => set((state) => ({ blocks: state.blocks.filter(({ id }) => id !== blockId)})),
+}));
+
+const Blocks: FunctionComponent<BlocksProps> = () => {
+  const blocks = useEditorStore((state) => state.blocks);
+  const addNewBlock = useEditorStore((state) => state.addBlock);
+  const remove = useEditorStore((state) => state.removeBlock);
+
+  const addBlock = (ref: HTMLElement, currentBlockId: string) => {
     const id = new Date().toISOString(); // FIXME: generate uuid
-    const block = {
+
+    addNewBlock({
       id,
       html: "",
       tag: "p",
-    };
-
-    setBlocks([...blocks, block]);
+    }, currentBlockId);
 
     ref.focus();
     setCaretToEnd(ref);
@@ -31,25 +52,22 @@ const Blocks: FunctionComponent<BlocksProps> = () => {
     if (blocks.length < 2) {
       return;
     }
-
+  
+    remove(blockId);
+  
     const previousBlock = ref.previousElementSibling as HTMLElement;
-    console.log("previous block: ", previousBlock);
-
-    const blockIndex = blocks.map(({ id }) => id).indexOf(blockId);
-    const modifiedBlocks = [...blocks];
-    modifiedBlocks.splice(blockIndex, 1);
-    setBlocks(modifiedBlocks);
-
-    setCaretToEnd(previousBlock);
-    previousBlock?.focus();
+    if (previousBlock) {
+      setCaretToEnd(previousBlock);
+      previousBlock.focus();
+    }
   };
 
   return (
     <div>
       {blocks.map((block) => (
         <Block
-          block={block}
           key={block.id}
+          block={block}
           addBlock={addBlock}
           removeBlock={removeBlock}
         />

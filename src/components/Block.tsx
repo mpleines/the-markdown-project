@@ -14,7 +14,7 @@ export type BlockType = {
 
 interface BlockProps {
   block: BlockType;
-  addBlock: (ref: HTMLElement) => void;
+  addBlock: (ref: HTMLElement, currentBlockId: string) => void;
   removeBlock: (ref: HTMLElement, blockId: string) => void;
 }
 
@@ -70,7 +70,7 @@ const Block: React.FunctionComponent<BlockProps> = ({
 
     if (event.key === "Enter") {
       event.preventDefault();
-      addBlock(ref.current);
+      addBlock(ref.current, block.id);
     }
 
     if (event.key === "Backspace" && !text.current) {
@@ -90,7 +90,7 @@ const Block: React.FunctionComponent<BlockProps> = ({
     <ContentEditable
       style={{ padding: '2px' }}
       innerRef={ref as any}
-      key={tagName}
+      key={`block-${tagName}-${block.id}`}
       html={text.current}
       tagName={tagName}
       onChange={handleInputChange}
