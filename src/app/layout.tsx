@@ -1,9 +1,11 @@
+import { cn } from '@/lib/utils'
 import '../styles/globals.css'
 import { Metadata } from 'next'
+import { fontSans } from './page'
  
 export const metadata: Metadata = {
-  title: 'Home',
-  description: 'Welcome to Next.js',
+  title: 'Getting Started',
+  description: 'Get started using The Markdown Project',
 }
 
 export default function RootLayout({
@@ -13,7 +15,14 @@ export default function RootLayout({
   }) {
     return (
       <html lang="en">
-        <body>{children}</body>
+        <body>
+        <main className={cn(fontSans.className, "min-h-screen flex flex-col gap-2 items-center pt-48")}>
+          {children}
+        </main>
+        <footer className="fixed bottom-0 p-4 flex justify-center w-screen">
+          <p className="text-neutral-500 text-sm font-medium">© 2024, made by Maik Pleines</p>
+        </footer>
+        </body>
       </html>
     )
   }
