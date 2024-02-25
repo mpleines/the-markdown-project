@@ -1,11 +1,9 @@
 import Head from "next/head";
-import { trpc } from "@/utils/trpc";
-import Editor from "@/components/Editor";
 import { Inter as FontSans } from "next/font/google"
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { File, Mail } from '@geist-ui/icons'
+import Link from "next/link";
 
 export const fontSans = FontSans({
   subsets: ["latin"],
@@ -13,8 +11,6 @@ export const fontSans = FontSans({
 })
 
 export default function Home() {
-  // const hello = trpc.hello.useQuery({ text: "pretty neat" });
-
   return (
     <>
       <Head>
@@ -33,9 +29,11 @@ export default function Home() {
             <h1 className="text-7xl font-extrabold">The Markdown Project</h1>
           </div>
           <p className="mt-4 text-neutral-500 text-xl font-medium">Streamline your note-taking with The Markdown Project - where simplicity meets creativity.</p>
-          <Button type="submit" className="mt-8">
-            <Mail/>
-            <span className="ml-2">Login with Email</span>
+          <Button asChild type="submit" className="mt-8">
+            <Link href="/login">
+              <Mail/>
+              <span className="ml-2">Login with Email</span>
+            </Link>
           </Button>
         </main>
         <footer className="fixed bottom-0 p-4 flex justify-center w-screen">

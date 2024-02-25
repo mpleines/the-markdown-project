@@ -2,6 +2,7 @@ import { FunctionComponent } from "react";
 import Blocks from "./Blocks";
 import { create } from "zustand";
 import { BlockType } from "./Block";
+import { GeistMono } from "geist/font/mono";
 
 const DEFAULT_BLOCK: BlockType = {
   id: new Date().toISOString(),
@@ -34,7 +35,7 @@ interface EditorProps {
 
 const Editor: FunctionComponent<EditorProps> = () => {
   return (
-    <div>
+    <div className={GeistMono.className}>
       <Blocks />
     </div>
   );
