@@ -1,4 +1,6 @@
-import { FunctionComponent } from "react";
+"use client";
+
+import React, { FunctionComponent } from "react";
 import Blocks from "./Blocks";
 import { create } from "zustand";
 import { BlockType } from "./Block";
