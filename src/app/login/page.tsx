@@ -1,8 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Metadata } from 'next';
-import { Info } from '@geist-ui/icons';
-import { login } from './actions';
+import { login, signup } from './actions';
 
 export const metadata: Metadata = {
   title: 'Sign in',
@@ -11,23 +10,17 @@ export const metadata: Metadata = {
 
 export default function Login() {
   return (
-    <>
+    <section className="h-screen flex justify-center items-center flex-col ">
       <h1 className="text-4xl font-extrabold">Welcome Back</h1>
       <h2 className="text-xl text-neutral-500 font-medium">
         Sign in to your account
       </h2>
-      <form className="flex gap-2 mt-2">
-        <Input placeholder="Email" name="email" />
-        <Button formAction={login}>Login</Button>
+      <form className="flex flex-col gap-2 mt-6 w-1/3 min-w-72">
+        <Input autoFocus placeholder="Email" name="email"/>
+        <Input type="password" placeholder="Password" name="password"/>
+        <Button formAction={signup}>Sign up</Button>
+        <Button formAction={login} variant="outline">Login</Button>
       </form>
-      <div className="flex gap-1 items-center mt-4">
-        <Info size={12} />
-        <p className="text-neutral-500 text-xs text-center ">
-          We are using magic links to log you into your account. No other
-          personal information needed.{' '}
-          <span className="underline">No registration needed.</span>
-        </p>
-      </div>
-    </>
+    </section>
   );
 }

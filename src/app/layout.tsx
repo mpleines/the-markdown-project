@@ -16,7 +16,7 @@ export default function RootLayout({
     return (
       <html lang="en">
         <body>
-        <main className={cn(fontSans.className, "min-h-screen flex flex-col gap-2 items-center pt-48")}>
+        <main className={cn(fontSans.className, "min-h-screen")}>
           {children}
         </main>
         <footer className="fixed bottom-0 p-4 flex justify-center w-screen">
