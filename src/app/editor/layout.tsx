@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Header from '@/components/Header'
+import Sidebar from '@/components/Sidebar'
  
 export const metadata: Metadata = {
   title: 'Getting Started',
@@ -12,12 +13,16 @@ export default function EditorLayout({
     children: React.ReactNode
   }) {
     return (
-      <section>
+      <section className="h-screen">
         <Header/>
-        <aside>
-          {/* TODO: add sidebar */}
-        </aside>
-        {children}
+        <div className="grid grid-cols-6 pt-2 border-t">
+          <div className="h-full col-span-1 hidden lg:block">
+            <Sidebar/>
+          </div>
+          <div className="col-span-4">
+            {children}
+          </div>
+        </div>
       </section>
     )
   }
