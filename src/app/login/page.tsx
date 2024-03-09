@@ -16,7 +16,7 @@ export default function Login() {
       <h2 className="text-xl text-neutral-500 font-medium">
         Sign in to your account
       </h2>
-      <form className="flex flex-col gap-2 mt-6 w-1/3 min-w-72">
+      <form className="flex flex-col gap-2 mt-6 w-1/3 lg:w-1/6 min-w-72">
         <Input autoFocus placeholder="Email" name="email"/>
         <Input type="password" placeholder="Password" name="password"/>
         <Button formAction={login}>Sign In</Button>
