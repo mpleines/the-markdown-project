@@ -11,6 +11,8 @@ export default async function Page() {
   }
 
   return (
-    <Editor />
+    <section className="pl-4">
+      <Editor />
+    </section>
   );
 }

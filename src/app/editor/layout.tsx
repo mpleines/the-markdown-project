@@ -15,7 +15,7 @@ export default function EditorLayout({
     return (
       <section className="h-screen">
         <Header/>
-        <div className="grid grid-cols-6 pt-2 border-t">
+        <div className="h-full grid grid-cols-6 pt-2 border-t">
           <div className="h-full col-span-1 hidden lg:block">
             <Sidebar/>
           </div>
