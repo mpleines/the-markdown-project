@@ -1,14 +1,14 @@
-import { marked } from "marked";
-import {
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import ContentEditable, { ContentEditableEvent } from "react-contenteditable";
+import { marked } from 'marked';
+import { useEffect, useRef, useState } from 'react';
+import ContentEditable, { ContentEditableEvent } from 'react-contenteditable';
+import { useEditorStore } from './Editor';
+import { createClient } from '@/utils/supabase/client';
+import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
+import { useNotesStore } from '@/stores/notesStore';
 
 export type BlockType = {
   id: string;
-  html: string;
+  content: string;
   tag: string;
 };
 
@@ -32,18 +32,18 @@ export const setCaretToEnd = (element: HTMLElement) => {
   element.focus();
 };
 
-const Block: React.FunctionComponent<BlockProps> = ({
-  block,
-  addBlock,
-  removeBlock,
-}) => {
-  const text = useRef("");
-  const [tagName, setTagName] = useState("");
+const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlock }) => {
+  const supabase = createClient();
+  const [tagName, setTagName] = useState(block.tag ?? '');
   const ref = useRef<HTMLElement>();
+  const updateBlock = useEditorStore((state) => state.updateBlock);
+  const getBlocks = useEditorStore((state) => state.getBlocks);
+  const noteId = useEditorStore((state) => state.noteId);
+  const updateNoteTitle = useNotesStore((state) => state.updateNoteTitle);
 
   const getTagName = (text: string) => {
     const html = marked(text);
-    const div = document.createElement("div");
+    const div = document.createElement('div');
     div.innerHTML = html;
     const tag = div.firstElementChild?.tagName.toLowerCase();
 
@@ -52,15 +52,27 @@ const Block: React.FunctionComponent<BlockProps> = ({
 
   const replaceSpecialChars = (str: string) => {
     return str.replace(/&nbsp;/g, ' ');
-  }
+  };
+
+  const saveToDatabaseDebounced = useDebouncedCallback(async () => {
+    const rows = getBlocks();
+    const title = rows[0].content;
+
+    await supabase.from('notes').update({ title, rows }).eq('id', noteId);
+  }, 1000);
 
   const handleInputChange = (event: ContentEditableEvent) => {
     const targetValue = event.target.value;
-    const trimmedString = replaceSpecialChars(targetValue)
-      .trim();
+    const trimmedString = replaceSpecialChars(targetValue).trim();
     const tag = getTagName(trimmedString);
-    setTagName(tag ?? "p");
-    text.current = targetValue;
+    setTagName(tag ?? 'p');
+
+    if (noteId != null && getBlocks()[0].id === block.id) {
+      updateNoteTitle(noteId, targetValue);
+    }
+
+    updateBlock(block.id, { content: targetValue, tag: tagName });
+    saveToDatabaseDebounced();
   };
 
   const handleKeyDown = (event: KeyboardEvent) => {
@@ -68,12 +80,12 @@ const Block: React.FunctionComponent<BlockProps> = ({
       return;
     }
 
-    if (event.key === "Enter") {
+    if (event.key === 'Enter') {
       event.preventDefault();
       addBlock(ref.current, block.id);
     }
 
-    if (event.key === "Backspace" && !text.current) {
+    if (event.key === 'Backspace' && !block.content) {
       event.preventDefault();
       removeBlock(ref.current, block.id);
     }
@@ -91,11 +103,12 @@ const Block: React.FunctionComponent<BlockProps> = ({
       style={{ padding: '2px' }}
       innerRef={ref as any}
       key={`block-${tagName}-${block.id}`}
-      html={text.current}
+      html={block.content}
       tagName={tagName}
       onChange={handleInputChange}
       onKeyDown={(event) => handleKeyDown(event as any)}
     />
-)};
+  );
+};
 
 export default Block;
