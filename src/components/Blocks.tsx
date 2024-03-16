@@ -1,6 +1,7 @@
 import { FunctionComponent } from "react";
-import Block, { BlockType, setCaretToEnd } from "./Block";
+import Block, { setCaretToEnd } from "./Block";
 import { useEditorStore } from "./Editor";
+import { v4 as uuidv4 } from 'uuid';
 
 interface BlocksProps {
   // TODO: define props
@@ -12,11 +13,11 @@ const Blocks: FunctionComponent<BlocksProps> = () => {
   const remove = useEditorStore((state) => state.removeBlock);
 
   const addBlock = (ref: HTMLElement, currentBlockId: string) => {
-    const id = new Date().toISOString(); // FIXME: generate uuid
+    const id = uuidv4();
 
     addNewBlock({
       id,
-      html: "",
+      content: "",
       tag: "p",
     }, currentBlockId);
 
