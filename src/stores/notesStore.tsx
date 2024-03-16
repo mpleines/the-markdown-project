@@ -27,8 +27,16 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   },
   addBlankNote: async () => {
     const supabase = createClient();
+    const { data: userData } = await supabase.auth.getUser();
+
+    if (userData.user == null) {
+      // TODO: better error handling
+      return;
+    }
+
     const newNote: Partial<Note> = {
       title: '',
+      user_id: userData.user.id,
       rows: [
         {
           id: uuidv4(),

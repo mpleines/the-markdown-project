@@ -16,7 +16,7 @@ export type Database = {
           rows: Json | null
           title: string | null
           updated_at: string | null
-          userId: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -24,7 +24,7 @@ export type Database = {
           rows?: Json | null
           title?: string | null
           updated_at?: string | null
-          userId?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -32,9 +32,17 @@ export type Database = {
           rows?: Json | null
           title?: string | null
           updated_at?: string | null
-          userId?: string | null
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "public_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
       }
     }
     Views: {
