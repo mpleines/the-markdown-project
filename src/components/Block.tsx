@@ -1,5 +1,5 @@
 import { marked } from 'marked';
-import { useEffect, useRef, useState } from 'react';
+import { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable';
 import { useEditorStore } from './Editor';
 import { createClient } from '@/utils/supabase/client';
@@ -36,6 +36,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
   const supabase = createClient();
   const [tagName, setTagName] = useState(block.tag ?? '');
   const ref = useRef<HTMLElement>();
+  const plainText = useRef<string>(block.content ?? '');
   const updateBlock = useEditorStore((state) => state.updateBlock);
   const getBlocks = useEditorStore((state) => state.getBlocks);
   const noteId = useEditorStore((state) => state.noteId);
@@ -63,6 +64,8 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
 
   const handleInputChange = (event: ContentEditableEvent) => {
     const targetValue = event.target.value;
+    plainText.current = targetValue;
+
     const trimmedString = replaceSpecialChars(targetValue).trim();
     const tag = getTagName(trimmedString);
     setTagName(tag ?? 'p');
@@ -75,7 +78,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
     saveToDatabaseDebounced();
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (ref.current == null) {
       return;
     }
@@ -85,7 +88,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
       addBlock(ref.current, block.id);
     }
 
-    if (event.key === 'Backspace' && !block.content) {
+    if (event.key === 'Backspace' && !plainText.current) {
       event.preventDefault();
       removeBlock(ref.current, block.id);
     }
@@ -103,7 +106,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
       style={{ padding: '2px' }}
       innerRef={ref as any}
       key={`block-${tagName}-${block.id}`}
-      html={block.content}
+      html={plainText.current}
       tagName={tagName}
       onChange={handleInputChange}
       onKeyDown={(event) => handleKeyDown(event as any)}
