@@ -1,27 +1,12 @@
 'use client';
 
-import React, { FunctionComponent, useEffect, useState } from 'react';
+import React, { FunctionComponent } from 'react';
 import Blocks from './Blocks';
 import { create } from 'zustand';
 import { BlockType } from './Block';
 import { GeistMono } from 'geist/font/mono';
 import { v4 as uuidv4 } from 'uuid';
 import { Database } from 'types/supabase';
-import { Button } from './ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { redirect, useRouter } from 'next/navigation';
-import { toast } from 'sonner';
-import { useNotesStore } from '@/stores/notesStore';
 
 const DEFAULT_BLOCK: BlockType = {
   id: uuidv4(),
@@ -78,44 +63,14 @@ interface EditorProps {
 }
 
 const Editor: FunctionComponent<EditorProps> = ({ note }) => {
-  const router = useRouter();
   const setBlocks = useEditorStore((state) => state.setBlocks);
   const setNoteId = useEditorStore((state) => state.setNoteId);
-  const deleteNote = useNotesStore((state) => state.deleteNote);
-  const fetchNotes = useNotesStore((state) => state.fetchNotes);
-
-  const handleDeleteNote = async (id: number) => {
-    await deleteNote(id);
-    await fetchNotes();
-    router.push('/editor');
-    toast('Note has been deleted.');
-  };
 
   setNoteId(note.id);
   setBlocks(note.rows as BlockType[]);
 
   return (
     <div className={GeistMono.className}>
-      <div className="justify-end">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline">Delete</Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => handleDeleteNote(note.id)}>
-                Continue
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-
       <Blocks />
     </div>
   );
