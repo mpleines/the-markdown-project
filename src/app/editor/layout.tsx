@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function EditorLayout({ children }: { children: React.ReactNode }) {
   return (
-    <section className="h-screen">
+    <section>
       <div className="sticky top-0 border-b bg-white">
         <Header />
       </div>
