@@ -63,7 +63,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="border-r flex flex-col gap-2 p-2">
+    <div className="flex flex-col gap-2 p-2">
       <div className="justify-end">
         <AlertDialog open={currentAction?.action === 'delete'}>
           <AlertDialogContent>
