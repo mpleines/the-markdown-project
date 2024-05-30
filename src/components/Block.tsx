@@ -1,4 +1,3 @@
-import { marked } from 'marked';
 import React, { KeyboardEvent, useEffect, useRef, useState } from 'react';
 import ContentEditable, { ContentEditableEvent } from 'react-contenteditable';
 import { useEditorStore } from './Editor';
@@ -15,16 +14,7 @@ import {
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
 
-const markdownCharMap = {
-  h1: '# ',
-  h2: '## ',
-  h3: '### ',
-  h4: '#### ',
-  h5: '##### ',
-  h6: '###### ',
-};
-
-type TagName = keyof typeof markdownCharMap;
+type TagName = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
 
 const FORMATTING_OPTIONS = [
   { label: 'Heading 1', value: 'h1' },
@@ -72,19 +62,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
   const getBlocks = useEditorStore((state) => state.getBlocks);
   const noteId = useEditorStore((state) => state.noteId);
   const updateNoteTitle = useNotesStore((state) => state.updateNoteTitle);
-
-  const getTagName = (text: string) => {
-    const html = marked(text);
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    const tag = div.firstElementChild?.tagName.toLowerCase();
-
-    return tag;
-  };
-
-  const replaceSpecialChars = (str: string) => {
-    return str.replace(/&nbsp;(?=\S)/g, ' ');
-  };
+  const isFirstBlock = useEditorStore((state) => state.isFirstBlock);
 
   const saveToDatabaseDebounced = useDebouncedCallback(async () => {
     const rows = getBlocks();
@@ -103,10 +81,6 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
     } else {
       setShowBlockControls(false);
     }
-
-    const trimmedString = replaceSpecialChars(targetValue).trim();
-    const tag = getTagName(trimmedString);
-    setTagName(tag ?? 'p');
 
     if (noteId != null && getBlocks()[0].id === block.id) {
       updateNoteTitle(noteId, targetValue);
@@ -133,14 +107,8 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
   };
 
   const handleMenuItemClick = (newTagName: TagName) => {
-    let newText = plainText.current.replace('/', markdownCharMap[newTagName] + ' ');
-    if (!newText.startsWith(markdownCharMap[newTagName] + ' ')) {
-      newText = newText.replace(markdownCharMap[newTagName], markdownCharMap[newTagName] + ' ');
-    }
-
+    plainText.current = plainText.current.replace('/', '');
     setTagName(newTagName);
-    plainText.current = newText;
-
     setShowBlockControls(false);
   };
 
@@ -167,7 +135,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
         tagName={tagName}
         onChange={handleInputChange}
         onKeyDown={(event) => handleKeyDown(event as any)}
-        placeholder="type '/' for formatting options"
+        placeholder={isFirstBlock(block.id) ? 'Unnamed' : "type '/' for formatting options"}
       />
 
       {showBlockControls && (

@@ -24,6 +24,18 @@ interface EditorState {
   setBlocks: (blocks: BlockType[]) => void;
   getBlocks: () => BlockType[];
   title: string | null;
+  isFirstBlock: (blockId: string) => boolean;
+}
+interface EditorState {
+  noteId: number | null;
+  setNoteId: (id: number) => void;
+  blocks: BlockType[];
+  addBlock: (block: BlockType, currentBlockId: string) => void;
+  removeBlock: (blockId: string) => void;
+  updateBlock: (blockId: string, updatedBlock: Partial<BlockType>) => void;
+  setBlocks: (blocks: BlockType[]) => void;
+  getBlocks: () => BlockType[];
+  title: string | null;
 }
 
 export const useEditorStore = create<EditorState>((set, get) => ({
@@ -54,6 +66,10 @@ export const useEditorStore = create<EditorState>((set, get) => ({
     set((state) => ({ ...state, blocks: rows }));
   },
   getBlocks: () => get().blocks,
+  isFirstBlock: (blockId: string) => {
+    const blocks = get().blocks;
+    return blocks.length > 0 && blocks[0].id === blockId;
+  },
 }));
 
 export type Note = Database['public']['Tables']['notes']['Row'];
