@@ -19,6 +19,12 @@ h3 {
   --header-height: 64px;
 }
 
+[contenteditable='true']:focus:empty:before {
+  content: attr(placeholder);
+  display: block;
+  color: #aaa;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

@@ -167,6 +167,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
         tagName={tagName}
         onChange={handleInputChange}
         onKeyDown={(event) => handleKeyDown(event as any)}
+        placeholder="type '/' for formatting options"
       />
 
       {showBlockControls && (
