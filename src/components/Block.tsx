@@ -44,7 +44,7 @@ export type BlockType = {
 interface BlockProps {
   block: BlockType;
   addBlock: (ref: HTMLElement, currentBlockId: string) => void;
-  removeBlock: (ref: HTMLElement, blockId: string) => void;
+  removeBlock: (wrapperRef: HTMLDivElement, blockId: string) => void;
 }
 
 export const setCaretToEnd = (element: HTMLElement) => {
@@ -66,6 +66,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
   const [tagName, setTagName] = useState(block.tag ?? '');
   const [showBlockControls, setShowBlockControls] = useState(false);
   const ref = useRef<HTMLElement>();
+  const wrapperRef = useRef<HTMLDivElement>(null);
   const plainText = useRef<string>(block.content ?? '');
   const updateBlock = useEditorStore((state) => state.updateBlock);
   const getBlocks = useEditorStore((state) => state.getBlocks);
@@ -127,7 +128,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
 
     if (event.key === 'Backspace' && !plainText.current) {
       event.preventDefault();
-      removeBlock(ref.current, block.id);
+      removeBlock(wrapperRef.current!, block.id);
     }
   };
 
@@ -157,7 +158,7 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
   }, [showBlockControls]);
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative' }} ref={wrapperRef}>
       <ContentEditable
         style={{ padding: '2px' }}
         innerRef={ref as any}
