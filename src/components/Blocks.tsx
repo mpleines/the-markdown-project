@@ -1,6 +1,6 @@
-import { FunctionComponent } from "react";
-import Block, { setCaretToEnd } from "./Block";
-import { useEditorStore } from "./Editor";
+import { FunctionComponent } from 'react';
+import Block, { setCaretToEnd } from './Block';
+import { useEditorStore } from './Editor';
 import { v4 as uuidv4 } from 'uuid';
 
 interface BlocksProps {
@@ -15,39 +15,39 @@ const Blocks: FunctionComponent<BlocksProps> = () => {
   const addBlock = (ref: HTMLElement, currentBlockId: string) => {
     const id = uuidv4();
 
-    addNewBlock({
-      id,
-      content: "",
-      tag: "p",
-    }, currentBlockId);
+    addNewBlock(
+      {
+        id,
+        content: '',
+        tag: 'p',
+      },
+      currentBlockId
+    );
 
     ref.focus();
     setCaretToEnd(ref);
   };
 
-  const removeBlock = (ref: HTMLElement, blockId: string) => {
+  const removeBlock = (blockWrapperRef: HTMLElement, blockId: string) => {
     if (blocks.length < 2) {
       return;
     }
-  
+
     remove(blockId);
-  
-    const previousBlock = ref.previousElementSibling as HTMLElement;
-    if (previousBlock) {
-      setCaretToEnd(previousBlock);
-      previousBlock.focus();
+
+    const previousBlock = blockWrapperRef.previousElementSibling as HTMLElement;
+    const previousContentEditable = previousBlock.firstChild;
+
+    if (previousContentEditable instanceof HTMLElement) {
+      setCaretToEnd(previousContentEditable);
+      previousContentEditable.focus();
     }
   };
 
   return (
     <div>
       {blocks.map((block) => (
-        <Block
-          key={block.id}
-          block={block}
-          addBlock={addBlock}
-          removeBlock={removeBlock}
-        />
+        <Block key={block.id} block={block} addBlock={addBlock} removeBlock={removeBlock} />
       ))}
     </div>
   );
