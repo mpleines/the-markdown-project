@@ -41,7 +41,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         {
           id: uuidv4(),
           tag: 'h1',
-          content: '# ',
+          content: '#&nbsp;',
         },
       ],
     };
