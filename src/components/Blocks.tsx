@@ -29,7 +29,7 @@ const Blocks: FunctionComponent<BlocksProps> = () => {
   };
 
   const removeBlock = (blockWrapperRef: HTMLElement, blockId: string) => {
-    if (blocks.length < 2) {
+    if (blocks.length === 1) {
       return;
     }
 
