@@ -4,26 +4,7 @@ import { useEditorStore } from './Editor';
 import { createClient } from '@/utils/supabase/client';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import { useNotesStore } from '@/stores/notesStore';
-import {
-  DropdownMenu,
-  DropdownMenuItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuGroup,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from './ui/dropdown-menu';
-
-type TagName = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
-
-const FORMATTING_OPTIONS = [
-  { label: 'Heading 1', value: 'h1' },
-  { label: 'Heading 2', value: 'h2' },
-  { label: 'Heading 3', value: 'h3' },
-  { label: 'Heading 4', value: 'h4' },
-  { label: 'Heading 5', value: 'h5' },
-  { label: 'Heading 6', value: 'h6' },
-];
+import FormattingMenu, { FORMATTING_OPTIONS } from './FormattingMenu';
 
 export type BlockType = {
   id: string;
@@ -125,6 +106,13 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
     }
   }, [showBlockControls]);
 
+  const placeholder =
+    tagName !== 'p'
+      ? FORMATTING_OPTIONS.find((option) => option.value === tagName)?.label
+      : isFirstBlock(block.id)
+        ? 'Unnamed'
+        : "type '/' for formatting options";
+
   return (
     <div style={{ position: 'relative' }} ref={wrapperRef}>
       <ContentEditable
@@ -135,25 +123,10 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
         tagName={tagName}
         onChange={handleInputChange}
         onKeyDown={(event) => handleKeyDown(event as any)}
-        placeholder={isFirstBlock(block.id) ? 'Unnamed' : "type '/' for formatting options"}
+        placeholder={placeholder}
       />
 
-      {showBlockControls && (
-        <DropdownMenu defaultOpen>
-          <DropdownMenuTrigger />
-          <DropdownMenuContent side="bottom" alignOffset={-10}>
-            <DropdownMenuLabel>Formatting</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              {FORMATTING_OPTIONS.map(({ label, value }) => (
-                <DropdownMenuItem key={value} onClick={() => handleMenuItemClick(value)}>
-                  {label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuGroup>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+      {showBlockControls && <FormattingMenu handleMenuItemClick={handleMenuItemClick} />}
     </div>
   );
 };
