@@ -4,7 +4,7 @@ import { useEditorStore } from './Editor';
 import { createClient } from '@/utils/supabase/client';
 import { useDebouncedCallback } from '@/hooks/useDebouncedCallback';
 import { useNotesStore } from '@/stores/notesStore';
-import FormattingMenu, { FORMATTING_OPTIONS } from './FormattingMenu';
+import FormattingMenu, { FORMATTING_OPTIONS, TagName } from './FormattingMenu';
 
 export type BlockType = {
   id: string;

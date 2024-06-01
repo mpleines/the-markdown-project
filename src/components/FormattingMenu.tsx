@@ -16,9 +16,13 @@ export const FORMATTING_OPTIONS = [
   { label: 'Heading 4', value: 'h4' },
   { label: 'Heading 5', value: 'h5' },
   { label: 'Heading 6', value: 'h6' },
+  { label: 'Paragraph', value: 'p' },
+  { label: 'Bold', value: 'strong' },
+  { label: 'Italic', value: 'em' },
+  { label: 'Strikethrough', value: 'del' },
 ];
 
-type TagName = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p';
+export type TagName = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'strong' | 'em' | 'del';
 
 interface FormattingMenuProps {
   handleMenuItemClick: (newTagName: TagName) => void;
