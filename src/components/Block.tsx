@@ -106,12 +106,11 @@ const Block: React.FunctionComponent<BlockProps> = ({ block, addBlock, removeBlo
     }
   }, [showBlockControls]);
 
-  const placeholder =
-    tagName !== 'p'
+  const placeholder = isFirstBlock(block.id)
+    ? 'Unnamed'
+    : tagName !== 'p'
       ? FORMATTING_OPTIONS.find((option) => option.value === tagName)?.label
-      : isFirstBlock(block.id)
-        ? 'Unnamed'
-        : "type '/' for formatting options";
+      : "type '/' for formatting options";
 
   return (
     <div style={{ position: 'relative' }} ref={wrapperRef}>
