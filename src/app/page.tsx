@@ -1,14 +1,8 @@
-import { Inter as FontSans } from 'next/font/google';
 import { Button } from '@/components/ui/button';
 import { File, Mail } from '@geist-ui/icons';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
-
-export const fontSans = FontSans({
-  subsets: ['latin'],
-  variable: '--font-sans',
-});
 
 export default async function Home() {
   const supabase = createClient();
