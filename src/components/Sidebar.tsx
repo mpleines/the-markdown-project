@@ -1,22 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Button, buttonVariants } from './ui/button';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useRouter } from 'next/navigation';
-import { MoreHorizontal, Plus, Trash } from '@geist-ui/icons';
-import { truncateString } from '@/utils/truncateString';
-import { useNotesStore } from '@/stores/notesStore';
+import { MoreHorizontal, Plus, Trash, ChevronRight, File } from '@geist-ui/icons';
+import { GroupedNotes, useNotesStore } from '@/stores/notesStore';
 import { cn } from '@/lib/utils';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,38 +17,44 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from './ui/alert-dialog';
 import { toast } from 'sonner';
-
-interface SidebarProps {}
+import { Note } from './Editor';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { truncateString } from '@/utils/truncateString';
 
 const Sidebar = () => {
-  const params = useParams();
   const router = useRouter();
 
-  const fetchNotes = useNotesStore((state) => state.fetchNotes);
-  const notes = useNotesStore((state) => state.notes);
+  const fetchNotesGrouped = useNotesStore((state) => state.fetchNotesAndGroupByParent);
+  const notesGroupedByParentId = useNotesStore((state) => state.notesGroupedByParentId);
   const addBlankNote = useNotesStore((state) => state.addBlankNote);
-  const deleteNote = useNotesStore((state) => state.deleteNote);
+  const deleteNoteWithChildren = useNotesStore((state) => state.deleteNoteWithAllChildren);
 
   const [currentAction, setCurrentAction] = useState<{ action: 'delete'; noteId: number } | null>(
     null
   );
 
   useEffect(() => {
-    fetchNotes();
-  }, [fetchNotes]);
+    fetchNotesGrouped();
+  }, [fetchNotesGrouped]);
 
   const addNewNote = async () => {
     const newNoteId = await addBlankNote();
-    await fetchNotes();
+    await fetchNotesGrouped();
     router.push(`/editor/${newNoteId}`);
   };
 
   const handleDeleteNote = async (id: number) => {
-    await deleteNote(id);
-    await fetchNotes();
+    await deleteNoteWithChildren(id);
+    await fetchNotesGrouped();
     router.push('/editor');
     toast('Note has been deleted.');
   };
@@ -91,45 +88,95 @@ const Sidebar = () => {
         <Plus size="16" />
         <span>Add new note</span>
       </Button>
-      {notes?.map((note) => (
-        <Link
-          key={note.id}
-          className={cn(
-            buttonVariants({
-              variant: params.id == String(note.id) ? 'default' : 'ghost',
-            }),
-            'flex items-center justify-between'
-          )}
-          href={`/editor/${note.id}`}
-        >
-          <div>{truncateString(note.title!)}</div>
-          <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={cn(
-                  buttonVariants({
-                    variant: params.id == String(note.id) ? 'default' : 'ghost',
-                  }),
-                  'p-0'
-                )}
-              >
-                <MoreHorizontal size={20} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  onClick={() => setCurrentAction({ action: 'delete', noteId: note.id })}
-                  className="flex gap-1"
-                >
-                  <Trash size={16} />
-                  <span>Delete</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+
+      {notesGroupedByParentId != null &&
+        Object.entries(notesGroupedByParentId).map(([parentId, currentNote]) => (
+          <SidebarNote key={parentId} note={currentNote} setCurrentAction={setCurrentAction} />
+        ))}
+    </div>
+  );
+};
+
+const SidebarNote = ({
+  note,
+  setCurrentAction,
+}: {
+  note: { note: Note; children: GroupedNotes | null };
+  setCurrentAction: Dispatch<
+    SetStateAction<{
+      action: 'delete';
+      noteId: number;
+    } | null>
+  >;
+}) => {
+  const params = useParams();
+  const [expanded, setExpanded] = useState(false);
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <div>
+      <Link
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        href={`/editor/${note.note.id}`}
+        className={cn(
+          'rounded-md px-2 py-1 block hover:bg-accent transition-colors duration-200 ease-in-out',
+          note.note.id === Number(params.id) ? 'bg-accent' : ''
+        )}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center flex-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-0 h-8 w-8 mr-2"
+              onClick={() => setExpanded(!expanded)}
+              aria-expanded={expanded}
+            >
+              {hovered ? (
+                <ChevronRight
+                  className={`h-4 w-4 transition-transform duration-200 ${
+                    expanded ? 'transform rotate-90' : ''
+                  }`}
+                />
+              ) : (
+                <File />
+              )}
+            </Button>
+            <span>{truncateString(note.note.title!) || 'Untitled'}</span>
           </div>
-        </Link>
-      ))}
+          <DropdownMenu className="mr-2">
+            <DropdownMenuTrigger
+              className={cn(
+                buttonVariants({
+                  variant: params.id == String(note.id) ? 'default' : 'ghost',
+                }),
+                'p-0'
+              )}
+            >
+              <MoreHorizontal size={20} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => setCurrentAction({ action: 'delete', noteId: note.note.id })}
+                className="flex gap-1"
+              >
+                <Trash size={16} />
+                <span>Delete</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </Link>
+      {note.children != null &&
+        expanded === true &&
+        Object.entries(note.children).map(([noteId, currentNote]) => (
+          <div className="ml-2">
+            <SidebarNote key={noteId} note={currentNote} setCurrentAction={setCurrentAction} />
+          </div>
+        ))}
     </div>
   );
 };
